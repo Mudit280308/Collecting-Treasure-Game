@@ -3,10 +3,10 @@ var OVER = 0;
 var HOME = 2;
 var gamestate = PLAY;
 
-var path,boy,cash,diamonds,jwellery,sword;
-var pathImg,boyImg,cashImg,diamondsImg,jwelleryImg,swordImg;
+var path,boy,cash,diamonds,jwellery,sword,otherJwellers;
+var pathImg,boyImg,cashImg,diamondsImg,jwelleryImg,swordImg,otherJwellersImage;
 var treasureCollection = 0;
-var cashG,diamondsG,jwelleryG,swordG;
+var cashG,diamondsG,jwelleryG,swordG,otherJwellersG;
 
 var gameoverSprite,endImg,invisibleBackground,invisibleBImg;
 
@@ -19,6 +19,7 @@ function preload(){
   swordImg = loadImage("sword.png");
   endImg =loadAnimation("gameOver.png");
   invisibleBImg = loadImage("boysad.jpg");
+  otherJwellersImage = loadAnimation("runner1.png","runner2.png");
 }
 
 function setup(){
@@ -38,6 +39,7 @@ boy.scale=0.08;
 boy.setCollider("rectangle",0,0,1130,1299);
 boy.debug = false;
   
+
   
 gameoverSprite = createSprite(220,200,10,10);
 gameoverSprite.visible = false;
@@ -52,7 +54,7 @@ cashG=new Group();
 diamondsG=new Group();
 jwelleryG=new Group();
 swordG=new Group();
-
+otherJwellersG = new Group();
 }
 
 function draw() {
@@ -63,8 +65,9 @@ function draw() {
   edges= createEdgeSprites();
   boy.collide(edges);
   
-  if(swordG.isTouching(boy)){
+  if(swordG.isTouching(boy)||otherJwellersG.isTouching(boy)){
     gamestate = OVER;
+    
   }
   
   if(gamestate === PLAY && treasureCollection <500){
@@ -72,12 +75,19 @@ function draw() {
   }
   
   if(gamestate === PLAY){
-  
+    
+    createCanvas(500,500);
+    
+    gameoverSprite.visible = false;
+    invisibleBackground.visible = false;
+    
+    path.setVelocity(0,6);
   //code to reset the background
   if(path.y > 400 ){
     path.y = height/2;
   }
   
+    createOtherJwellers();
     createCash();
     createDiamonds();
     createJwellery();
@@ -113,11 +123,13 @@ function draw() {
   diamondsG.setVelocityEach(0,0);
   jwelleryG.setVelocityEach(0,0);
   cashG.setVelocityEach(0,0);
+  otherJwellersG.setVelocityEach(0,0);
     
   swordG.destroyEach();
   diamondsG.destroyEach();
   jwelleryG.destroyEach();
   cashG.destroyEach();
+  otherJwellersG.destroyEach();
     
   if(keyDown("h")){
     createCanvas(500,450);
@@ -128,10 +140,15 @@ function draw() {
     
     
   }
+  
+   
   }
   
-  
-  
+   if(gamestate === HOME){
+      if(keyDown("space")){
+      gamestate = PLAY;
+    }
+   }
   drawSprites();
   
   if(treasureCollection < 500 && gamestate === PLAY){
@@ -139,6 +156,9 @@ function draw() {
     fill("black");
     text("Collect 500 treasure to get an ",290,20);
     text("UPGRADE!!",290,40);
+    text("And don't forget to",5,40);
+    text("avoid the 'OtherJwellers'",5,60);
+    
   }
   
   if(gamestate === PLAY || gamestate === OVER){
@@ -157,9 +177,10 @@ function draw() {
    if(gamestate === HOME){
     fill("black");
     textSize(20);
-    text("Now i have to stay in this house FOREVER !!",10,50);
+    text("Now i have to stay in this house FOREVER !",10,50);
     text("Unless..You play this",10,70);
     text("game AGAIN :)",10,90);
+    text("Just press 'space'",10,110);
    }
   
   if(treasureCollection >= 500 && gamestate === PLAY){
@@ -182,6 +203,8 @@ function draw() {
       boy.x = boy.x-4;
     }
   }
+  
+ 
 }
 
 function createCash() {
@@ -225,5 +248,20 @@ function createSword(){
   sword.velocityY = 3;
   sword.lifetime = 210;
   swordG.add(sword);
+  }
+}
+
+function createOtherJwellers(){
+  
+  if(frameCount%100 === 0){
+    otherJwellers = createSprite(250,-10,10,10);
+    otherJwellers.addAnimation("OJ",otherJwellersImage);
+    otherJwellers.scale = 0.06;
+    otherJwellers.setCollider("rectangle",0,0,1130,1299);
+    otherJwellers.debug = true;
+    otherJwellers.setVelocity(0,8);
+    otherJwellers.x = Math.round(random(50,250));
+    
+    otherJwellersG.add(otherJwellers);
   }
 }
